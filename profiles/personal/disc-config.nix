@@ -1,12 +1,16 @@
-{
+{ settings, lib, ... }: {
   disko.devices = {
     disk = {
       main-storage = {
-        device = "/dev/nvme0n1";
+        device = settings.system.disks.main;
         type = "disk";
         content = {
           type = "gpt";
           partitions = {
+            boot = lib.mkIf (settings.system.bootMode == "bios") {
+              size = "1M";
+              type = "EF02"; # for grub MBR
+            };
             ESP = {
               type = "EF00";
               size = "500M";
@@ -28,21 +32,23 @@
         };
       };
     };
+    /*
     hdd-backup = {
-        type = "disk";
-        device = "/dev/sda";
-        content = {
-          type = "gpt";
-          partitions = {
-            zfs = {
-              size = "100%";
-              content = {
-                type = "zfs";
-                pool = "hdd-backup";
-              };
+      type = "disk";
+      device = settings.system.disks.backup;
+      content = {
+        type = "gpt";
+        partitions = {
+          zfs = {
+            size = "100%";
+            content = {
+              type = "zfs";
+              pool = "hdd-backup";
             };
+            mountpoint = "/hdd-backup";
           };
         };
       };
+    };*/
   };
 }
